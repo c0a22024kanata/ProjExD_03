@@ -139,6 +139,29 @@ class Beam:
         self.rct.move_ip(self.vx,self.vy)
         screen.blit(self.img,self.rct)
 
+class Explosion:
+    """
+    爆発エフェクト 
+    """
+    def __init__(self, bomb: Bomb, life: int):
+        img = pg.image.load(f"ex03/fig/explosion.gif")
+        self._imgs = [img, pg.transform.flip(img, True, True)]
+        self._img = self._imgs[0]
+        self._rct = self._img.get_rect(center=bomb._rct.center)
+        self._life = life
+
+    def update(self, screen: pg.Surface):
+        """
+        """
+        self._life -= 1
+        self._img = self._imgs[self._life//10%2]
+        screen.blit(self._img, self._rct)
+
+    def get_life(self):
+        return self._life
+
+
+
 
 
 def main():
@@ -148,6 +171,7 @@ def main():
     bird = Bird(3, (900, 400))
     bombs = [Bomb((255,0,0),10) for _ in range(NUM_OF_BOMS)]
     beam = None
+    exps: list[Explosion] = list()
 
     clock = pg.time.Clock()
     tmr = 0
@@ -174,6 +198,10 @@ def main():
                     beam = None
                     bird.change_img(6,screen)
                     pg.display.update()
+        for i, exp in enumerate(exps):
+            exp.update(screen)
+            if exp.get_life() <= 0:
+                del exps[i]
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
@@ -186,6 +214,7 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(100)
+
 
 
 if __name__ == "__main__":
